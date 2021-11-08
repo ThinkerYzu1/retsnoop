@@ -79,6 +79,16 @@ $(OUTPUT)/retsnoop.skel.h: $(OUTPUT)/mass_attach.bpf.o
 $(OUTPUT)/retsnoop.o: $(OUTPUT)/retsnoop.skel.h $(OUTPUT)/calib_feat.skel.h
 $(OUTPUT)/mass_attacher.o: $(OUTPUT)/retsnoop.skel.h $(OUTPUT)/calib_feat.skel.h
 
+../sidecar/target/release/addr2line::
+	$(call msg,CARGO,addr2line)
+	$(Q)cd ../sidecar; cargo build --release
+
+../tools/addr2line: ../sidecar/target/release/addr2line
+	$(call msg,CP,addr2line)
+	$(Q)cp $< $@
+	$(call msg,LLVM_STRIP,addr2line)
+	$(Q)$(LLVM_STRIP) $@
+
 $(OUTPUT)/addr2line.embed.o: ../tools/addr2line
 	$(call msg,LD,$@)
 	$(Q)$(LD) -r -b binary -o $@ $<
